@@ -1,7 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class SelectTargetPage extends StatelessWidget {
   @override
@@ -21,12 +21,29 @@ class MapContainer extends StatefulWidget {
 }
 
 class MapContainerState extends State<MapContainer> {
-  Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController mapController;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+    target: LatLng(35.685175, 139.7528),
+    zoom: 13,
   );
+
+  initLocation() async {
+    var location = new Location();
+    try {
+      var currentLocation = await location.getLocation();
+      debugPrint("lat: ${currentLocation.latitude}");
+      debugPrint("lng: ${currentLocation.longitude}");
+      mapController.moveCamera(
+        CameraUpdate.newLatLng(
+          LatLng(currentLocation.latitude, currentLocation.longitude),
+        ),
+      );
+    } on PlatformException catch (e) {
+      debugPrint("exception: $e");
+      debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +51,12 @@ class MapContainerState extends State<MapContainer> {
       initialCameraPosition: _kGooglePlex,
       myLocationEnabled: true,
       onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
+        mapController = controller;
+        initLocation();
+      },
+      onCameraMove: (CameraPosition position) {
+        debugPrint("lat: ${position.target.latitude}");
+        debugPrint("lng: ${position.target.longitude}");
       },
     );
   }
