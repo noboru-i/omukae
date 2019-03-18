@@ -11,20 +11,6 @@ class SelectTargetPage extends StatelessWidget {
         title: Text('目的地の選択'),
       ),
       body: MapContainer(),
-//      body: Center(
-//        child: Column(
-//          mainAxisAlignment: MainAxisAlignment.center,
-//          children: <Widget>[
-//            MapContainer(),
-//            RaisedButton(
-//              padding: EdgeInsets.all(20.0),
-//              color: Colors.lightBlue[100],
-//              onPressed: () {},
-//              child: Text('選択する'),
-//            ),
-//          ],
-//        ),
-//      ),
     );
   }
 }
@@ -45,8 +31,8 @@ class MapContainerState extends State<MapContainer> {
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
-      mapType: MapType.hybrid,
       initialCameraPosition: _kGooglePlex,
+      myLocationEnabled: true,
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
       },
