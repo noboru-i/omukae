@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:omukae/pages/select_notification_page.dart';
 
 class SelectTargetPage extends StatelessWidget {
   @override
@@ -91,7 +92,12 @@ class MapContainerState extends State<MapContainer> {
               margin: const EdgeInsets.all(12.0),
               child: RaisedButton(
                 onPressed: () {
-                  // TODO move to next screen
+                  Navigator.push(
+                      context,
+                      new MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            new SelectNotificationPage(),
+                      ));
                 },
                 color: Colors.blue[800],
                 child: const Text(
