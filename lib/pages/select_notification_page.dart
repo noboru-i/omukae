@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 
-class SelectNotificationPage extends StatelessWidget {
+class SelectNotificationPage extends StatefulWidget {
+  @override
+  _SelectNotificationPageState createState() => _SelectNotificationPageState();
+}
+
+class _SelectNotificationPageState extends State<SelectNotificationPage> {
+  final _key = GlobalKey<ListContainerState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('目的地の選択'),
+        title: Text('通知の設定'),
       ),
-      body: ListContainer(),
+      body: ListContainer(
+        key: _key,
+      ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
           var newNotification = await _showInputDialog(context: context);
           if (newNotification != null) {
-            print(newNotification.message);
-            print(newNotification.distance.toString());
+            _key.currentState.add(newNotification);
           }
         },
       ),
@@ -34,48 +42,59 @@ Future<Notification> _showInputDialog({
 }
 
 class ListContainer extends StatefulWidget {
+  const ListContainer({
+    Key key,
+  }) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => ListContainerState();
 }
 
 class ListContainerState extends State<ListContainer> {
-  var notificationList = [
-    Notification(message: "日本語の文字列の確認", distance: 1000),
-    Notification(message: "test2", distance: 2000),
-  ];
+  List<Notification> notificationList = [];
+
+  add(Notification notification) {
+    setState(() {
+      notificationList.add(notification);
+      notificationList.sort((a, b) => b.distance.compareTo(a.distance));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: notificationList.length,
-      itemBuilder: (context, int index) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  notificationList[index].message,
-                  style: Theme.of(context).textTheme.subtitle,
+    return notificationList.isEmpty
+        ? Center(child: Text('右下のボタンから、通知を作成してください。'))
+        : ListView.builder(
+            itemCount: notificationList.length,
+            itemBuilder: (context, int index) {
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        notificationList[index].message,
+                        style: Theme.of(context).textTheme.subtitle,
+                      ),
+                    ),
+                    Text(
+                      (notificationList[index].distance / 1000.0)
+                              .toStringAsFixed(2) +
+                          "km",
+                      style: Theme.of(context).textTheme.caption,
+                    ),
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {},
+                    ),
+                  ],
                 ),
-              ),
-              Text(
-                (notificationList[index].distance / 1000.0).toStringAsFixed(2) +
-                    "km",
-                style: Theme.of(context).textTheme.caption,
-              ),
-              SizedBox(
-                width: 8.0,
-              ),
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {},
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              );
+            },
+          );
   }
 }
 
