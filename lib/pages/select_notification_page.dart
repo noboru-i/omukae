@@ -32,11 +32,12 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
 
 Future<Notification> _showInputDialog({
   @required BuildContext context,
+  Notification initNotification,
 }) {
   return showDialog(
     context: context,
     builder: (context) {
-      return _InputDialog();
+      return _InputDialog(initNotification: initNotification);
     },
   );
 }
@@ -51,21 +52,28 @@ class ListContainer extends StatefulWidget {
 }
 
 class ListContainerState extends State<ListContainer> {
-  List<Notification> notificationList = [];
+  List<Notification> _notificationList = [];
 
   add(Notification notification) {
     setState(() {
-      notificationList.add(notification);
-      notificationList.sort((a, b) => b.distance.compareTo(a.distance));
+      _notificationList.add(notification);
+      _notificationList.sort((a, b) => b.distance.compareTo(a.distance));
+    });
+  }
+
+  edit(Notification notification, int index) {
+    setState(() {
+      _notificationList[index] = notification;
+      _notificationList.sort((a, b) => b.distance.compareTo(a.distance));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return notificationList.isEmpty
+    return _notificationList.isEmpty
         ? Center(child: Text('右下のボタンから、通知を作成してください。'))
         : ListView.builder(
-            itemCount: notificationList.length,
+            itemCount: _notificationList.length,
             itemBuilder: (context, int index) {
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -73,12 +81,12 @@ class ListContainerState extends State<ListContainer> {
                   children: [
                     Expanded(
                       child: Text(
-                        notificationList[index].message,
+                        _notificationList[index].message,
                         style: Theme.of(context).textTheme.subtitle,
                       ),
                     ),
                     Text(
-                      (notificationList[index].distance / 1000.0)
+                      (_notificationList[index].distance / 1000.0)
                               .toStringAsFixed(2) +
                           "km",
                       style: Theme.of(context).textTheme.caption,
@@ -88,7 +96,13 @@ class ListContainerState extends State<ListContainer> {
                     ),
                     IconButton(
                       icon: Icon(Icons.edit),
-                      onPressed: () {},
+                      onPressed: () async {
+                        var editedNotification = await _showInputDialog(
+                          context: context,
+                          initNotification: _notificationList[index],
+                        );
+                        edit(editedNotification, index);
+                      },
                     ),
                   ],
                 ),
@@ -111,6 +125,12 @@ class Notification {
 }
 
 class _InputDialog extends StatefulWidget {
+  final Notification initNotification;
+
+  const _InputDialog({
+    this.initNotification,
+  });
+
   @override
   State<StatefulWidget> createState() => _InputDialogState();
 }
@@ -137,6 +157,7 @@ class _InputDialogState extends State<_InputDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
+              initialValue: widget.initNotification?.message,
               autofocus: true,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -153,6 +174,7 @@ class _InputDialogState extends State<_InputDialog> {
             ),
             SizedBox(height: 8.0),
             TextFormField(
+              initialValue: widget.initNotification?.distance?.toString(),
               autofocus: true,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
