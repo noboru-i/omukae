@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -22,6 +24,7 @@ class MapContainer extends StatefulWidget {
 
 class MapContainerState extends State<MapContainer> {
   GoogleMapController mapController;
+  CameraPosition centerPosition;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(35.685175, 139.7528),
@@ -47,17 +50,59 @@ class MapContainerState extends State<MapContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: _kGooglePlex,
-      myLocationEnabled: true,
-      onMapCreated: (GoogleMapController controller) {
-        mapController = controller;
-        initLocation();
-      },
-      onCameraMove: (CameraPosition position) {
-        debugPrint("lat: ${position.target.latitude}");
-        debugPrint("lng: ${position.target.longitude}");
-      },
+    return Stack(
+      children: [
+        GoogleMap(
+          initialCameraPosition: _kGooglePlex,
+          myLocationEnabled: true,
+          onMapCreated: (GoogleMapController controller) {
+            mapController = controller;
+            initLocation();
+          },
+          onCameraMove: (CameraPosition position) {
+            setState(() {
+              centerPosition = position;
+            });
+          },
+        ),
+        Stack(
+          children: [
+            Center(
+              child: Icon(
+                Icons.location_searching,
+                size: 36,
+                color: Colors.blue,
+              ),
+            ),
+            IgnorePointer(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+                child: Container(
+                  color: Colors.black.withOpacity(0),
+                ),
+              ),
+            ),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(12.0),
+              child: RaisedButton(
+                onPressed: () {
+                  // TODO move to next screen
+                },
+                color: Colors.blue[800],
+                child: const Text(
+                  '地図の中心に目的地を設定',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            )
+          ],
+        ),
+      ],
     );
   }
 }
