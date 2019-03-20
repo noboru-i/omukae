@@ -13,6 +13,15 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('通知の設定'),
+        actions: [
+          FlatButton(
+            child: const Text(
+              "完了",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: ListContainer(
         key: _key,

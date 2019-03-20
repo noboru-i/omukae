@@ -46,6 +46,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  geofencing:
+    dependency: "direct main"
+    description:
+      path: "../FlutterGeofencing"
+      relative: true
+    source: path
+    version: "0.0.1"
   google_maps_flutter:
     dependency: "direct main"
     description:
