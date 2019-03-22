@@ -2,9 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:omukae/pages/select_notification_page.dart';
+import 'package:omukae/repository/draft_repository.dart';
 
 class SelectTargetPage extends StatelessWidget {
   @override
@@ -33,9 +34,9 @@ class MapContainerState extends State<MapContainer> {
   );
 
   initLocation() async {
-    var location = new Location();
     try {
-      var currentLocation = await location.getLocation();
+      var currentLocation = await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       debugPrint("lat: ${currentLocation.latitude}");
       debugPrint("lng: ${currentLocation.longitude}");
       mapController.moveCamera(
@@ -47,6 +48,19 @@ class MapContainerState extends State<MapContainer> {
       debugPrint("exception: $e");
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
     }
+  }
+
+  _moveToNext() async {
+    var draft = Draft(
+      latitude: centerPosition.target.latitude,
+      longitude: centerPosition.target.longitude,
+    );
+    await DraftRepository().saveCurrentDraft(draft);
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new SelectNotificationPage(),
+        ));
   }
 
   @override
@@ -91,14 +105,7 @@ class MapContainerState extends State<MapContainer> {
             Container(
               margin: const EdgeInsets.all(12.0),
               child: RaisedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            new SelectNotificationPage(),
-                      ));
-                },
+                onPressed: _moveToNext,
                 color: Colors.blue[800],
                 child: const Text(
                   '地図の中心に目的地を設定',
