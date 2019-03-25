@@ -1,30 +1,12 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:isolate';
-import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:geofencing/geofencing.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:omukae/repository/draft_repository.dart';
+import 'package:omukae/util/geofence_trigger.dart';
 import 'package:omukae/util/local_notification_util.dart';
-
-void callback(List<String> ids, Location l, GeofenceEvent e) async {
-  print('callback Fences: $ids Location $l Event: $e');
-  var maxId = ids.map((s) => int.parse(s)).reduce(max);
-
-  var repository = DraftRepository();
-  var draft = await repository.loadCurrentDraft();
-  var message = draft.messageList[maxId];
-
-  var notificationUtil = LocalNotificationUtil();
-  notificationUtil.notify(title: 'omukae', body: 'message: ' + message.text);
-
-  final SendPort send =
-      IsolateNameServer.lookupPortByName('geofencing_send_port');
-  send?.send(maxId);
-}
 
 class ConfirmPage extends StatefulWidget {
   @override
@@ -32,35 +14,22 @@ class ConfirmPage extends StatefulWidget {
 }
 
 class _ConfirmPageState extends State<ConfirmPage> {
-  var port = ReceivePort();
   var log = ListQueue<String>();
 
-  // TODO
   var geolocator = Geolocator();
-  var locationOptions =
-      LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 0);
   StreamSubscription<Position> positionStream;
 
   @override
   void initState() {
     super.initState();
-    IsolateNameServer.registerPortWithName(
-        port.sendPort, 'geofencing_send_port');
-    port.listen((dynamic data) async {
-      print('listen: $data');
-      var repository = DraftRepository();
-      var draft = await repository.loadCurrentDraft();
-      var message = draft.messageList[data];
 
-//      var notificationUtil = LocalNotificationUtil();
-//      notificationUtil.notify(
-//          title: 'omukae', body: 'message: ' + message.text);
+    // initialize for request permission
+    LocalNotificationUtil();
 
-      setState(() {
-        log.add('notify ${message.text}');
-      });
-    });
-
+    var locationOptions = LocationOptions(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 10,
+    );
     positionStream = geolocator
         .getPositionStream(locationOptions)
         .listen((Position _position) async {
@@ -83,8 +52,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
         }
       });
     });
-
-    initPlatformState();
   }
 
   @override
@@ -92,12 +59,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
     super.dispose();
     positionStream.cancel();
     positionStream = null;
-  }
-
-  Future<void> initPlatformState() async {
-    print('Initializing...');
-    await GeofencingManager.initialize();
-    print('Initialization done');
   }
 
   @override
@@ -138,7 +99,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
     for (var i = 0; i < draft.messageList.length; i++) {
       var message = draft.messageList[i];
       print('index=$i, value=$message');
-      GeofencingManager.registerGeofence(
+      await GeofencingManager.registerGeofence(
         GeofenceRegion(
           i.toString(),
           draft.latitude,
@@ -147,7 +108,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
           [GeofenceEvent.enter],
           androidSettings: androidSettings,
         ),
-        callback,
+        GeofenceTrigger.callback,
       );
     }
     setState(() {

@@ -89,14 +89,14 @@ class MapContainerState extends State<MapContainer> {
                 color: Colors.blue,
               ),
             ),
-            IgnorePointer(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-                child: Container(
-                  color: Colors.black.withOpacity(0),
-                ),
-              ),
-            ),
+//            IgnorePointer(
+//              child: BackdropFilter(
+//                filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+//                child: Container(
+//                  color: Colors.black.withOpacity(0),
+//                ),
+//              ),
+//            ),
           ],
         ),
         Column(

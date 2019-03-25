@@ -8,7 +8,7 @@ class LocalNotificationUtil {
   LocalNotificationUtil() {
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var initializationSettingsAndroid =
-        new AndroidInitializationSettings('app_icon');
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = new IOSInitializationSettings(
 //      onDidReceiveLocalNotification: onDidRecieveLocationLocation,
         );
