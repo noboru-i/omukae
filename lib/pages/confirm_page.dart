@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/util/geofencing_util.dart';
 import 'package:omukae/util/local_notification_util.dart';
@@ -17,6 +19,8 @@ class _ConfirmPageState extends State<ConfirmPage> {
 
   var geolocator = Geolocator();
   StreamSubscription<Position> positionStream;
+
+  GoogleMapController mapController;
 
   @override
   void initState() {
@@ -53,6 +57,23 @@ class _ConfirmPageState extends State<ConfirmPage> {
     });
   }
 
+  Future<LatLng> _initLocation() async {
+    try {
+      var currentLocation = await Geolocator()
+          .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+      debugPrint("lat: ${currentLocation.latitude}");
+      debugPrint("lng: ${currentLocation.longitude}");
+      return LatLng(
+        currentLocation.latitude,
+        currentLocation.longitude,
+      );
+    } on PlatformException catch (e) {
+      debugPrint("exception: $e");
+      debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
+      return null;
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -66,28 +87,51 @@ class _ConfirmPageState extends State<ConfirmPage> {
       appBar: AppBar(
         title: Text('通知の確認'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RaisedButton(
-              padding: EdgeInsets.all(20.0),
-              color: Colors.lightBlue[100],
-              onPressed: () async {
-                var result = await GeofencingUtil().registerGeofencing();
-                setState(() {
-                  log.add(result
-                      ? 'geofence is added.'
-                      : 'adding geofence is failed.');
-                });
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          RaisedButton(
+            padding: EdgeInsets.all(20.0),
+            color: Colors.lightBlue[100],
+            onPressed: () async {
+              var result = await GeofencingUtil().registerGeofencing();
+              setState(() {
+                log.add(result
+                    ? 'geofence is added.'
+                    : 'adding geofence is failed.');
+              });
+            },
+            child: Text('通知を設定する'),
+          ),
+          Text(log != null && log.isNotEmpty
+              ? log.reduce((value, element) => value + '\n' + element)
+              : ''),
+          Expanded(
+            child: FutureBuilder(
+              future: _initLocation(),
+              builder: (BuildContext context, AsyncSnapshot<LatLng> snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: Text('現在地取得中'),
+                  );
+                }
+
+                return GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: snapshot.data,
+                    zoom: 13,
+                  ),
+                  myLocationEnabled: true,
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+
+                    // TODO show map includes from and to
+                  },
+                );
               },
-              child: Text('通知を設定する'),
             ),
-            Text(log != null && log.isNotEmpty
-                ? log.reduce((value, element) => value + '\n' + element)
-                : '')
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

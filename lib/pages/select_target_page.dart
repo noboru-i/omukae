@@ -29,28 +29,21 @@ class MapContainerState extends State<MapContainer> {
   CameraPosition centerPosition;
   Position currentPosition;
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(35.685175, 139.7528),
-    zoom: 13,
-  );
-
-  initLocation() async {
+  Future<LatLng> _initLocation() async {
     try {
       var currentLocation = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       debugPrint("lat: ${currentLocation.latitude}");
       debugPrint("lng: ${currentLocation.longitude}");
-      setState(() {
-        currentPosition = currentLocation;
-      });
-      mapController.moveCamera(
-        CameraUpdate.newLatLng(
-          LatLng(currentLocation.latitude, currentLocation.longitude),
-        ),
+      currentPosition = currentLocation;
+      return LatLng(
+        currentLocation.latitude,
+        currentLocation.longitude,
       );
     } on PlatformException catch (e) {
       debugPrint("exception: $e");
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
+      return null;
     }
   }
 
@@ -105,53 +98,65 @@ class MapContainerState extends State<MapContainer> {
           ),
         ),
         Expanded(
-          child: Stack(
-            children: [
-              GoogleMap(
-                initialCameraPosition: _kGooglePlex,
-                myLocationEnabled: true,
-                onMapCreated: (GoogleMapController controller) {
-                  mapController = controller;
-                  initLocation();
-                },
-                onCameraMove: (CameraPosition position) {
-                  setState(() {
-                    centerPosition = position;
-                  });
-                },
-              ),
-              // shadow
-              Center(
-                child: Icon(
-                  Icons.location_searching,
-                  size: 40,
-                  color: Colors.black.withOpacity(0.1),
-                ),
-              ),
-              Center(
-                child: Icon(
-                  Icons.location_searching,
-                  size: 36,
-                  color: Colors.blue,
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: FutureBuilder(
+            future: _initLocation(),
+            builder: (BuildContext context, AsyncSnapshot<LatLng> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: Text('現在地取得中'),
+                );
+              }
+              return Stack(
                 children: [
-                  Container(
-                    margin: const EdgeInsets.all(12.0),
-                    child: RaisedButton(
-                      onPressed: _moveToNext,
-                      color: Colors.blue[800],
-                      child: const Text(
-                        '地図の中心に目的地を設定',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: snapshot.data,
+                      zoom: 13,
                     ),
-                  )
+                    myLocationEnabled: true,
+                    onMapCreated: (GoogleMapController controller) {
+                      mapController = controller;
+                    },
+                    onCameraMove: (CameraPosition position) {
+                      setState(() {
+                        centerPosition = position;
+                      });
+                    },
+                  ),
+                  // shadow
+                  Center(
+                    child: Icon(
+                      Icons.location_searching,
+                      size: 40,
+                      color: Colors.black.withOpacity(0.1),
+                    ),
+                  ),
+                  Center(
+                    child: Icon(
+                      Icons.location_searching,
+                      size: 36,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.all(12.0),
+                        child: RaisedButton(
+                          onPressed: _moveToNext,
+                          color: Colors.blue[800],
+                          child: const Text(
+                            '地図の中心に目的地を設定',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ],
-              ),
-            ],
+              );
+            },
           ),
         ),
       ],
