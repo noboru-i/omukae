@@ -1,17 +1,21 @@
 import 'dart:convert';
 
-//import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GeofenceRepository {
-  Future<void> saveRegisteredGeofence(RegisteredGeofence registeredGeofence) async {
+  Future<void> saveRegisteredGeofence(
+      RegisteredGeofence registeredGeofence) async {
     var prefs = await SharedPreferences.getInstance();
-    await prefs.setString('registered_geofence', jsonEncode(registeredGeofence.toJson()));
+    await prefs.setString(
+        'registered_geofence', jsonEncode(registeredGeofence.toJson()));
   }
 
   Future<RegisteredGeofence> loadRegisteredGeofence() async {
     var prefs = await SharedPreferences.getInstance();
     var registeredGeofenceString = await prefs.getString('registered_geofence');
+    if (registeredGeofenceString == null) {
+      return null;
+    }
     return RegisteredGeofence.fromJson(jsonDecode(registeredGeofenceString));
   }
 }
@@ -24,11 +28,9 @@ class RegisteredGeofence {
   });
 
   RegisteredGeofence.fromJson(Map<String, dynamic> json)
-      : ids = json['ids'];
-//        (json['ids'] as List)?.map((j) => Message.fromJson(j))?.toList();
+      : ids = (json['ids'] as List)?.map((id) => id.toString())?.toList();
 
   Map<String, dynamic> toJson() => {
-    'ids': ids,
-//    'messageList': messageList?.map((m) => m.toJson())?.toList()
-  };
+        'ids': ids,
+      };
 }

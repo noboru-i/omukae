@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:geofencing/geofencing.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/repository/geofence_repository.dart';
@@ -20,6 +21,7 @@ class GeofencingUtil {
     }
 
     geofence.ids.forEach((id) async {
+      debugPrint('remove geofence $id');
       await GeofencingManager.removeGeofenceById(id);
     });
   }
