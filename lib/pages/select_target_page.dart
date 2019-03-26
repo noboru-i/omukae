@@ -29,17 +29,20 @@ class MapContainerState extends State<MapContainer> {
   CameraPosition centerPosition;
   Position currentPosition;
 
-  Future<LatLng> _initLocation() async {
+  @override
+  void initState() {
+    super.initState();
+    _initLocation();
+  }
+
+  void _initLocation() async {
     try {
-      var currentLocation = await Geolocator()
-          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      var currentLocation = await Geolocator().getLastKnownPosition();
       debugPrint("lat: ${currentLocation.latitude}");
       debugPrint("lng: ${currentLocation.longitude}");
-      currentPosition = currentLocation;
-      return LatLng(
-        currentLocation.latitude,
-        currentLocation.longitude,
-      );
+      setState(() {
+        currentPosition = currentLocation;
+      });
     } on PlatformException catch (e) {
       debugPrint("exception: $e");
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
@@ -82,10 +85,10 @@ class MapContainerState extends State<MapContainer> {
               EdgeInsets.only(top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
           child: FutureBuilder(
             future: _distanceText(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.hasData) {
                 return Text(
-                  'distance ${snapshot.data.toString()}',
+                  'distance ${snapshot.data}',
                   textAlign: TextAlign.right,
                 );
               } else {
@@ -98,66 +101,63 @@ class MapContainerState extends State<MapContainer> {
           ),
         ),
         Expanded(
-          child: FutureBuilder(
-            future: _initLocation(),
-            builder: (BuildContext context, AsyncSnapshot<LatLng> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(
+          child: currentPosition == null
+              ? Center(
                   child: Text('現在地取得中'),
-                );
-              }
-              return Stack(
-                children: [
-                  GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: snapshot.data,
-                      zoom: 13,
-                    ),
-                    myLocationEnabled: true,
-                    onMapCreated: (GoogleMapController controller) {
-                      mapController = controller;
-                    },
-                    onCameraMove: (CameraPosition position) {
-                      setState(() {
-                        centerPosition = position;
-                      });
-                    },
-                  ),
-                  // shadow
-                  Center(
-                    child: Icon(
-                      Icons.location_searching,
-                      size: 40,
-                      color: Colors.black.withOpacity(0.1),
-                    ),
-                  ),
-                  Center(
-                    child: Icon(
-                      Icons.location_searching,
-                      size: 36,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.all(12.0),
-                        child: RaisedButton(
-                          onPressed: _moveToNext,
-                          color: Colors.blue[800],
-                          child: const Text(
-                            '地図の中心に目的地を設定',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                )
+              : Stack(
+                  children: [
+                    GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(
+                          currentPosition.latitude,
+                          currentPosition.longitude,
                         ),
-                      )
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
+                        zoom: 13,
+                      ),
+                      myLocationEnabled: true,
+                      onMapCreated: (GoogleMapController controller) {
+                        mapController = controller;
+                      },
+                      onCameraMove: (CameraPosition position) {
+                        setState(() {
+                          centerPosition = position;
+                        });
+                      },
+                    ),
+                    // shadow
+                    Center(
+                      child: Icon(
+                        Icons.location_searching,
+                        size: 40,
+                        color: Colors.black.withOpacity(0.1),
+                      ),
+                    ),
+                    Center(
+                      child: Icon(
+                        Icons.location_searching,
+                        size: 36,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.all(12.0),
+                          child: RaisedButton(
+                            onPressed: _moveToNext,
+                            color: Colors.blue[800],
+                            child: const Text(
+                              '地図の中心に目的地を設定',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
         ),
       ],
     );

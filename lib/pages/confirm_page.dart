@@ -16,6 +16,7 @@ class ConfirmPage extends StatefulWidget {
 
 class _ConfirmPageState extends State<ConfirmPage> {
   var log = ListQueue<String>();
+  Position currentPosition;
 
   var geolocator = Geolocator();
   StreamSubscription<Position> positionStream;
@@ -28,6 +29,8 @@ class _ConfirmPageState extends State<ConfirmPage> {
 
     // initialize for request permission
     LocalNotificationUtil();
+
+    _initLocation();
 
     var locationOptions = LocationOptions(
       accuracy: LocationAccuracy.best,
@@ -57,16 +60,15 @@ class _ConfirmPageState extends State<ConfirmPage> {
     });
   }
 
-  Future<LatLng> _initLocation() async {
+  void _initLocation() async {
     try {
       var currentLocation = await Geolocator()
           .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
       debugPrint("lat: ${currentLocation.latitude}");
       debugPrint("lng: ${currentLocation.longitude}");
-      return LatLng(
-        currentLocation.latitude,
-        currentLocation.longitude,
-      );
+      setState(() {
+        currentPosition = currentLocation;
+      });
     } on PlatformException catch (e) {
       debugPrint("exception: $e");
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
@@ -107,30 +109,26 @@ class _ConfirmPageState extends State<ConfirmPage> {
               ? log.reduce((value, element) => value + '\n' + element)
               : ''),
           Expanded(
-            child: FutureBuilder(
-              future: _initLocation(),
-              builder: (BuildContext context, AsyncSnapshot<LatLng> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
+            child: currentPosition == null
+                ? Center(
                     child: Text('現在地取得中'),
-                  );
-                }
+                  )
+                : GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        currentPosition.latitude,
+                        currentPosition.longitude,
+                      ),
+                      zoom: 13,
+                    ),
+                    myLocationEnabled: true,
+                    onMapCreated: (GoogleMapController controller) {
+                      mapController = controller;
 
-                return GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: snapshot.data,
-                    zoom: 13,
+                      // TODO show map includes from and to
+                    },
                   ),
-                  myLocationEnabled: true,
-                  onMapCreated: (GoogleMapController controller) {
-                    mapController = controller;
-
-                    // TODO show map includes from and to
-                  },
-                );
-              },
-            ),
-          )
+          ),
         ],
       ),
     );
