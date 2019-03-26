@@ -140,24 +140,17 @@ class MapContainerState extends State<MapContainer> {
                         color: Colors.blue,
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.all(12.0),
-                          child: RaisedButton(
-                            onPressed: _moveToNext,
-                            color: Colors.blue[800],
-                            child: const Text(
-                              '地図の中心に目的地を設定',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
                   ],
                 ),
+        ),
+        RaisedButton(
+          padding: EdgeInsets.all(20.0),
+          onPressed: _moveToNext,
+          color: Colors.blue[800],
+          child: const Text(
+            '地図の中心に目的地を設定',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );

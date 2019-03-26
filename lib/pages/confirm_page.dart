@@ -92,19 +92,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          RaisedButton(
-            padding: EdgeInsets.all(20.0),
-            color: Colors.lightBlue[100],
-            onPressed: () async {
-              var result = await GeofencingUtil().registerGeofencing();
-              setState(() {
-                log.add(result
-                    ? 'geofence is added.'
-                    : 'adding geofence is failed.');
-              });
-            },
-            child: Text('通知を設定する'),
-          ),
           Text(log != null && log.isNotEmpty
               ? log.reduce((value, element) => value + '\n' + element)
               : ''),
@@ -128,6 +115,22 @@ class _ConfirmPageState extends State<ConfirmPage> {
                       // TODO show map includes from and to
                     },
                   ),
+          ),
+          RaisedButton(
+            padding: EdgeInsets.all(20.0),
+            color: Colors.blue[800],
+            onPressed: () async {
+              var result = await GeofencingUtil().registerGeofencing();
+              setState(() {
+                log.add(result
+                    ? 'geofence is added.'
+                    : 'adding geofence is failed.');
+              });
+            },
+            child: Text(
+              '通知を設定する',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
