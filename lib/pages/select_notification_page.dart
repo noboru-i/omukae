@@ -17,10 +17,11 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
     draft.messageList = _key.currentState.messageList;
     await repository.saveCurrentDraft(draft);
     Navigator.push(
-        context,
-        new MaterialPageRoute(
-          builder: (BuildContext context) => new ConfirmPage(),
-        ));
+      context,
+      new MaterialPageRoute(
+        builder: (BuildContext context) => new ConfirmPage(),
+      ),
+    );
   }
 
   @override
@@ -46,7 +47,7 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
         onPressed: () async {
           var newMessage = await showInputDialog(context: context);
           if (newMessage != null) {
-            _key.currentState.add(newMessage);
+            _key.currentState._add(newMessage);
           }
         },
       ),
@@ -72,14 +73,14 @@ class ListContainerState extends State<ListContainer> {
     Message(text: '0.5キロ', distance: 500),
   ];
 
-  add(Message message) {
+  _add(Message message) {
     setState(() {
       messageList.add(message);
       messageList.sort((a, b) => b.distance.compareTo(a.distance));
     });
   }
 
-  edit(Message message, int index) {
+  _edit(Message message, int index) {
     setState(() {
       messageList[index] = message;
       messageList.sort((a, b) => b.distance.compareTo(a.distance));
@@ -119,7 +120,9 @@ class ListContainerState extends State<ListContainer> {
                           context: context,
                           initMessage: messageList[index],
                         );
-                        edit(editedMessage, index);
+                        if (editedMessage != null) {
+                          _edit(editedMessage, index);
+                        }
                       },
                     ),
                   ],
