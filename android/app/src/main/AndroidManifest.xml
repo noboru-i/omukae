@@ -31,7 +31,7 @@
             android:value="@integer/google_play_services_version" />
 
         <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCmLvpVVGJFiO8ibRJUpB-XJYdxWuzcjO4"/>
+            android:value="AIzaSyDD1WI5lLSMphtOeqi8Ke5ptuMcdVvc1kM"/>
 
         <receiver android:name="io.flutter.plugins.geofencing.GeofencingBroadcastReceiver"
             android:enabled="true" android:exported="true"/>

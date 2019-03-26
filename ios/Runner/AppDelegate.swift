@@ -10,7 +10,7 @@ import geofencing
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyCmLvpVVGJFiO8ibRJUpB-XJYdxWuzcjO4")
+    GMSServices.provideAPIKey("AIzaSyDWVbmjYXVB0zq41TaulxNGAZDKtINXp8E")
     GeneratedPluginRegistrant.register(with: self)
     GeofencingPlugin.setPluginRegistrantCallback({ (registry) in
         GeneratedPluginRegistrant.register(with: registry)
