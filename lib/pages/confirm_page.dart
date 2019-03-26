@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:geofencing/geofencing.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:omukae/repository/draft_repository.dart';
-import 'package:omukae/util/geofence_trigger.dart';
+import 'package:omukae/util/geofencing_util.dart';
 import 'package:omukae/util/local_notification_util.dart';
 
 class ConfirmPage extends StatefulWidget {
@@ -74,8 +73,13 @@ class _ConfirmPageState extends State<ConfirmPage> {
             RaisedButton(
               padding: EdgeInsets.all(20.0),
               color: Colors.lightBlue[100],
-              onPressed: () {
-                _registerGeofencing();
+              onPressed: () async {
+                var result = await GeofencingUtil().registerGeofencing();
+                setState(() {
+                  log.add(result
+                      ? 'geofence is added.'
+                      : 'adding geofence is failed.');
+                });
               },
               child: Text('通知を設定する'),
             ),
@@ -86,33 +90,5 @@ class _ConfirmPageState extends State<ConfirmPage> {
         ),
       ),
     );
-  }
-
-  _registerGeofencing() async {
-    var repository = DraftRepository();
-    var draft = await repository.loadCurrentDraft();
-
-    var androidSettings = AndroidGeofencingSettings(
-      initialTrigger: <GeofenceEvent>[GeofenceEvent.enter],
-      loiteringDelay: 0,
-    );
-    for (var i = 0; i < draft.messageList.length; i++) {
-      var message = draft.messageList[i];
-      print('index=$i, value=$message');
-      await GeofencingManager.registerGeofence(
-        GeofenceRegion(
-          i.toString(),
-          draft.latitude,
-          draft.longitude,
-          message.distance.toDouble(),
-          [GeofenceEvent.enter],
-          androidSettings: androidSettings,
-        ),
-        GeofenceTrigger.callback,
-      );
-    }
-    setState(() {
-      log.add('geofence is added.');
-    });
   }
 }

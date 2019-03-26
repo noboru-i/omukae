@@ -32,7 +32,7 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
         actions: [
           FlatButton(
             child: const Text(
-              "完了",
+              "確認",
               style: TextStyle(color: Colors.white),
             ),
             onPressed: _moveToNext,
