@@ -18,7 +18,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
   var log = ListQueue<String>();
   Position currentPosition;
 
-  var geolocator = Geolocator();
   StreamSubscription<Position> positionStream;
 
   GoogleMapController mapController;
@@ -33,7 +32,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
       accuracy: LocationAccuracy.best,
       distanceFilter: 10,
     );
-    positionStream = geolocator
+    positionStream = Geolocator()
         .getPositionStream(locationOptions)
         .listen((Position _position) async {
       print(_position == null
