@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:omukae/pages/confirm_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
+import 'package:omukae/ui/distance_label.dart';
 import 'package:omukae/ui/input_message_dialog.dart';
+import 'package:geolocator/geolocator.dart';
 
 class SelectNotificationPage extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class SelectNotificationPage extends StatefulWidget {
 
 class _SelectNotificationPageState extends State<SelectNotificationPage> {
   final _key = GlobalKey<ListContainerState>();
+  Draft draft;
 
   _moveToNext() async {
     var repository = DraftRepository();
@@ -22,6 +25,19 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
         builder: (BuildContext context) => new ConfirmPage(),
       ),
     );
+  }
+
+  _loadDraft() async {
+    var draft = await DraftRepository().loadCurrentDraft();
+    setState(() {
+      this.draft = draft;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDraft();
   }
 
   @override
@@ -39,8 +55,27 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
           ),
         ],
       ),
-      body: ListContainer(
-        key: _key,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          draft == null
+              ? Container()
+              : Container(
+                  padding: EdgeInsets.only(
+                      top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
+                  child: DistanceLabel(
+                    targetPosition: Position(
+                      latitude: draft.latitude,
+                      longitude: draft.longitude,
+                    ),
+                  ),
+                ),
+          Expanded(
+            child: ListContainer(
+              key: _key,
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
