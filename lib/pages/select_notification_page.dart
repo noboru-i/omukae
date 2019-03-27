@@ -76,15 +76,26 @@ class ListContainerState extends State<ListContainer> {
   _add(Message message) {
     setState(() {
       messageList.add(message);
-      messageList.sort((a, b) => b.distance.compareTo(a.distance));
+      _sort();
     });
   }
 
   _edit(Message message, int index) {
     setState(() {
       messageList[index] = message;
-      messageList.sort((a, b) => b.distance.compareTo(a.distance));
+      _sort();
     });
+  }
+
+  _remove(int index) {
+    setState(() {
+      messageList.removeAt(index);
+      _sort();
+    });
+  }
+
+  _sort() {
+    messageList.sort((a, b) => b.distance.compareTo(a.distance));
   }
 
   @override
@@ -123,6 +134,12 @@ class ListContainerState extends State<ListContainer> {
                         if (editedMessage != null) {
                           _edit(editedMessage, index);
                         }
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _remove(index);
                       },
                     ),
                   ],
