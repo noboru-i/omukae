@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:omukae/pages/select_notification_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
+import 'package:omukae/ui/distance_label.dart';
 
 class SelectTargetPage extends StatelessWidget {
   @override
@@ -66,18 +67,6 @@ class MapContainerState extends State<MapContainer> {
         ));
   }
 
-  Future<String> _distanceText() async {
-    return await Geolocator()
-        .distanceBetween(
-            centerPosition.target.latitude,
-            centerPosition.target.longitude,
-            currentPosition.latitude,
-            currentPosition.longitude)
-        .then((distanceInMeters) {
-      return (distanceInMeters / 1000.0).toStringAsFixed(2) + "km";
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -86,21 +75,13 @@ class MapContainerState extends State<MapContainer> {
         Container(
           padding:
               EdgeInsets.only(top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
-          child: FutureBuilder(
-            future: _distanceText(),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                  'distance ${snapshot.data}',
-                  textAlign: TextAlign.right,
-                );
-              } else {
-                return Text(
-                  'distance -',
-                  textAlign: TextAlign.right,
-                );
-              }
-            },
+          child: DistanceLabel(
+            targetPosition: centerPosition == null
+                ? null
+                : Position(
+                    latitude: centerPosition.target.latitude,
+                    longitude: centerPosition.target.longitude,
+                  ),
           ),
         ),
         Expanded(
