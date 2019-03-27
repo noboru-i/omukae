@@ -6,13 +6,17 @@ class GeofenceRepository {
   Future<void> saveRegisteredGeofence(
       RegisteredGeofence registeredGeofence) async {
     var prefs = await SharedPreferences.getInstance();
+    if (registeredGeofence == null) {
+      await prefs.remove('registered_geofence');
+      return;
+    }
     await prefs.setString(
         'registered_geofence', jsonEncode(registeredGeofence.toJson()));
   }
 
   Future<RegisteredGeofence> loadRegisteredGeofence() async {
     var prefs = await SharedPreferences.getInstance();
-    var registeredGeofenceString = await prefs.getString('registered_geofence');
+    var registeredGeofenceString = prefs.getString('registered_geofence');
     if (registeredGeofenceString == null) {
       return null;
     }
@@ -26,6 +30,8 @@ class RegisteredGeofence {
   RegisteredGeofence({
     this.ids,
   });
+
+  bool get isEmpty => ids.isEmpty;
 
   RegisteredGeofence.fromJson(Map<String, dynamic> json)
       : ids = (json['ids'] as List)?.map((id) => id.toString())?.toList();

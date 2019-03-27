@@ -12,6 +12,9 @@ class DraftRepository {
   Future<Draft> loadCurrentDraft() async {
     var prefs = await SharedPreferences.getInstance();
     var draftString = await prefs.getString('draft');
+    if (draftString == null) {
+      return null;
+    }
     return Draft.fromJson(jsonDecode(draftString));
   }
 }

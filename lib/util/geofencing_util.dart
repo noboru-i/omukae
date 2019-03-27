@@ -8,13 +8,16 @@ import 'package:omukae/util/geofence_trigger.dart';
 
 class GeofencingUtil {
   Future<bool> registerGeofencing() async {
-    await _removeOldGeofence();
+    await removeOldGeofence();
     var ids = await _register();
+    if (ids == null || ids.isEmpty) {
+      return false;
+    }
     await _saveGeofence(ids);
     return true;
   }
 
-  Future<void> _removeOldGeofence() async {
+  Future<void> removeOldGeofence() async {
     var geofence = await GeofenceRepository().loadRegisteredGeofence();
     if (geofence == null) {
       return;
@@ -24,10 +27,14 @@ class GeofencingUtil {
       debugPrint('remove geofence $id');
       await GeofencingManager.removeGeofenceById(id);
     });
+    await GeofenceRepository().saveRegisteredGeofence(null);
   }
 
   Future<List<String>> _register() async {
     var draft = await DraftRepository().loadCurrentDraft();
+    if (draft == null || draft.messageList.isEmpty) {
+      return null;
+    }
     var ids = List<String>();
 
     var androidSettings = AndroidGeofencingSettings(

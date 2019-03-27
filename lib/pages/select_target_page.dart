@@ -38,6 +38,9 @@ class MapContainerState extends State<MapContainer> {
   void _initLocation() async {
     try {
       var currentLocation = await Geolocator().getLastKnownPosition();
+      if (currentLocation == null) {
+        currentLocation = await Geolocator().getCurrentPosition();
+      }
       debugPrint("lat: ${currentLocation.latitude}");
       debugPrint("lng: ${currentLocation.longitude}");
       setState(() {

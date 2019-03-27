@@ -27,9 +27,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
   void initState() {
     super.initState();
 
-    // initialize for request permission
-    LocalNotificationUtil();
-
     _initLocation();
 
     var locationOptions = LocationOptions(
@@ -120,6 +117,8 @@ class _ConfirmPageState extends State<ConfirmPage> {
             padding: EdgeInsets.all(20.0),
             color: Colors.blue[800],
             onPressed: () async {
+              // initialize for request permission
+              LocalNotificationUtil();
               var result = await GeofencingUtil().registerGeofencing();
               setState(() {
                 log.add(result
