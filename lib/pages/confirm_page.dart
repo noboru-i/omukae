@@ -15,9 +15,7 @@ class ConfirmPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('通知の確認'),
       ),
-      body: Builder(
-        builder: (context) => _ConfirmPageInternal(),
-      ),
+      body: _ConfirmPageInternal(),
     );
   }
 }
@@ -109,39 +107,75 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
                   ),
           ),
         ),
+        SizedBox(
+          height: 100,
+          child: _createListView(),
+        ),
         Expanded(
-          child: currentPosition == null
-              ? Center(
-                  child: Text('現在地取得中'),
-                )
-              : GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                      currentPosition.latitude,
-                      currentPosition.longitude,
-                    ),
-                    zoom: 13,
-                  ),
-                  myLocationEnabled: true,
-                  markers: markers,
-                  onMapCreated: (GoogleMapController controller) {
-                    mapController = controller;
-
-                    var west = min(currentPosition.latitude, draft.latitude);
-                    var east = max(currentPosition.latitude, draft.latitude);
-                    var southwest = LatLng(west, currentPosition.longitude);
-                    var northeast = LatLng(east, draft.longitude);
-                    mapController.moveCamera(CameraUpdate.newLatLngBounds(
-                      LatLngBounds(
-                        southwest: southwest,
-                        northeast: northeast,
-                      ),
-                      60.0,
-                    ));
-                  },
-                ),
+          child: _createMap(),
         ),
       ],
     );
+  }
+
+  Widget _createListView() {
+    return draft == null || draft.messageList == null
+        ? Container()
+        : ListView.builder(
+            itemCount: draft.messageList.length,
+            itemBuilder: (BuildContext context, int index) => Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          draft.messageList[index].text,
+                          style: Theme.of(context).textTheme.subtitle,
+                        ),
+                      ),
+                      Text(
+                        (draft.messageList[index].distance / 1000.0)
+                                .toStringAsFixed(2) +
+                            "km",
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                    ],
+                  ),
+                ),
+          );
+  }
+
+  Widget _createMap() {
+    return currentPosition == null
+        ? Center(
+            child: Text('現在地取得中'),
+          )
+        : GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: LatLng(
+                currentPosition.latitude,
+                currentPosition.longitude,
+              ),
+              zoom: 13,
+            ),
+            myLocationEnabled: true,
+            markers: markers,
+            onMapCreated: (GoogleMapController controller) {
+              mapController = controller;
+
+              var west = min(currentPosition.latitude, draft.latitude);
+              var east = max(currentPosition.latitude, draft.latitude);
+              var southwest = LatLng(west, currentPosition.longitude);
+              var northeast = LatLng(east, draft.longitude);
+              mapController.moveCamera(CameraUpdate.newLatLngBounds(
+                LatLngBounds(
+                  southwest: southwest,
+                  northeast: northeast,
+                ),
+                60.0,
+              ));
+            },
+          );
   }
 }
