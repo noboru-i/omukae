@@ -45,15 +45,6 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('通知の設定'),
-        actions: [
-          FlatButton(
-            child: const Text(
-              "確認",
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: _moveToNext,
-          ),
-        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,16 +66,28 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
               key: _key,
             ),
           ),
+          RaisedButton(
+            padding: EdgeInsets.all(20.0),
+            onPressed: _moveToNext,
+            color: Colors.blue[800],
+            child: const Text(
+              '通知を設定する',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          var newMessage = await showInputDialog(context: context);
-          if (newMessage != null) {
-            _key.currentState._add(newMessage);
-          }
-        },
+      floatingActionButton: Container(
+        padding: EdgeInsets.only(bottom: 100.0),
+        child: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () async {
+            var newMessage = await showInputDialog(context: context);
+            if (newMessage != null) {
+              _key.currentState._add(newMessage);
+            }
+          },
+        ),
       ),
     );
   }
