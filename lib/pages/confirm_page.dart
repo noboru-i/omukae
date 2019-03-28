@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,8 @@ class ConfirmPage extends StatefulWidget {
 class _ConfirmPageState extends State<ConfirmPage> {
   var log = ListQueue<String>();
   Position currentPosition;
+  Draft draft;
+  Set<Marker> markers = Set();
 
   StreamSubscription<Position> positionStream;
 
@@ -39,8 +42,9 @@ class _ConfirmPageState extends State<ConfirmPage> {
           ? 'Unknown'
           : '${_position.latitude.toString()}, ${_position.longitude.toString()}');
 
-      var repository = DraftRepository();
-      var draft = await repository.loadCurrentDraft();
+      if (draft == null) {
+        return;
+      }
       double distanceInMeters = await Geolocator().distanceBetween(
           draft.latitude,
           draft.longitude,
@@ -60,8 +64,6 @@ class _ConfirmPageState extends State<ConfirmPage> {
     try {
       var currentLocation = await Geolocator()
           .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
-      debugPrint("lat: ${currentLocation.latitude}");
-      debugPrint("lng: ${currentLocation.longitude}");
       setState(() {
         currentPosition = currentLocation;
       });
@@ -70,6 +72,15 @@ class _ConfirmPageState extends State<ConfirmPage> {
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
       return null;
     }
+    var repository = DraftRepository();
+    var draft = await repository.loadCurrentDraft();
+    setState(() {
+      this.draft = draft;
+      markers.add(Marker(
+        markerId: MarkerId('to'),
+        position: LatLng(draft.latitude, draft.longitude),
+      ));
+    });
   }
 
   @override
@@ -105,10 +116,21 @@ class _ConfirmPageState extends State<ConfirmPage> {
                       zoom: 13,
                     ),
                     myLocationEnabled: true,
+                    markers: markers,
                     onMapCreated: (GoogleMapController controller) {
                       mapController = controller;
 
-                      // TODO show map includes from and to
+                      var west = min(currentPosition.latitude, draft.latitude);
+                      var east = max(currentPosition.latitude, draft.latitude);
+                      var southwest = LatLng(west, currentPosition.longitude);
+                      var northeast = LatLng(east, draft.longitude);
+                      mapController.moveCamera(CameraUpdate.newLatLngBounds(
+                        LatLngBounds(
+                          southwest: southwest,
+                          northeast: northeast,
+                        ),
+                        60.0,
+                      ));
                     },
                   ),
           ),
