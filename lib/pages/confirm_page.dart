@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -7,16 +6,30 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:omukae/repository/draft_repository.dart';
+import 'package:omukae/ui/distance_label.dart';
 import 'package:omukae/util/geofencing_util.dart';
 import 'package:omukae/util/local_notification_util.dart';
 
-class ConfirmPage extends StatefulWidget {
+class ConfirmPage extends StatelessWidget {
   @override
-  _ConfirmPageState createState() => _ConfirmPageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('通知の確認'),
+      ),
+      body: Builder(
+        builder: (context) => _ConfirmPageInternal(),
+      ),
+    );
+  }
 }
 
-class _ConfirmPageState extends State<ConfirmPage> {
-  var log = ListQueue<String>();
+class _ConfirmPageInternal extends StatefulWidget {
+  @override
+  _ConfirmPageInternalState createState() => _ConfirmPageInternalState();
+}
+
+class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
   Position currentPosition;
   Draft draft;
   Set<Marker> markers = Set();
@@ -52,10 +65,7 @@ class _ConfirmPageState extends State<ConfirmPage> {
           _position.longitude);
       print('distance: $distanceInMeters meter');
       setState(() {
-        log.add('distance: $distanceInMeters meter');
-        while (log.length > 15) {
-          log.removeFirst();
-        }
+        currentPosition = _position;
       });
     });
   }
@@ -92,68 +102,73 @@ class _ConfirmPageState extends State<ConfirmPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('通知の確認'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(log != null && log.isNotEmpty
-              ? log.reduce((value, element) => value + '\n' + element)
-              : ''),
-          Expanded(
-            child: currentPosition == null
-                ? Center(
-                    child: Text('現在地取得中'),
-                  )
-                : GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                        currentPosition.latitude,
-                        currentPosition.longitude,
-                      ),
-                      zoom: 13,
-                    ),
-                    myLocationEnabled: true,
-                    markers: markers,
-                    onMapCreated: (GoogleMapController controller) {
-                      mapController = controller;
-
-                      var west = min(currentPosition.latitude, draft.latitude);
-                      var east = max(currentPosition.latitude, draft.latitude);
-                      var southwest = LatLng(west, currentPosition.longitude);
-                      var northeast = LatLng(east, draft.longitude);
-                      mapController.moveCamera(CameraUpdate.newLatLngBounds(
-                        LatLngBounds(
-                          southwest: southwest,
-                          northeast: northeast,
-                        ),
-                        60.0,
-                      ));
-                    },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Container(
+          padding:
+              EdgeInsets.only(top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
+          child: DistanceLabel(
+            targetPosition: draft == null
+                ? null
+                : Position(
+                    latitude: draft.latitude,
+                    longitude: draft.longitude,
                   ),
           ),
-          RaisedButton(
-            padding: EdgeInsets.all(20.0),
-            color: Colors.blue[800],
-            onPressed: () async {
-              // initialize for request permission
-              LocalNotificationUtil();
-              var result = await GeofencingUtil().registerGeofencing();
-              setState(() {
-                log.add(result
+        ),
+        Expanded(
+          child: currentPosition == null
+              ? Center(
+                  child: Text('現在地取得中'),
+                )
+              : GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      currentPosition.latitude,
+                      currentPosition.longitude,
+                    ),
+                    zoom: 13,
+                  ),
+                  myLocationEnabled: true,
+                  markers: markers,
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+
+                    var west = min(currentPosition.latitude, draft.latitude);
+                    var east = max(currentPosition.latitude, draft.latitude);
+                    var southwest = LatLng(west, currentPosition.longitude);
+                    var northeast = LatLng(east, draft.longitude);
+                    mapController.moveCamera(CameraUpdate.newLatLngBounds(
+                      LatLngBounds(
+                        southwest: southwest,
+                        northeast: northeast,
+                      ),
+                      60.0,
+                    ));
+                  },
+                ),
+        ),
+        RaisedButton(
+          padding: EdgeInsets.all(20.0),
+          color: Colors.blue[800],
+          onPressed: () async {
+            // initialize for request permission
+            LocalNotificationUtil();
+
+            var result = await GeofencingUtil().registerGeofencing();
+            final snackBar = SnackBar(
+                content: Text(result
                     ? 'geofence is added.'
-                    : 'adding geofence is failed.');
-              });
-            },
-            child: Text(
-              '通知を設定する',
-              style: TextStyle(color: Colors.white),
-            ),
+                    : 'adding geofence is failed.'));
+            Scaffold.of(context).showSnackBar(snackBar);
+          },
+          child: Text(
+            '通知を設定する',
+            style: TextStyle(color: Colors.white),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
