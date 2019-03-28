@@ -25,7 +25,9 @@ class WelcomePage extends StatelessWidget {
                     new MaterialPageRoute(
                       builder: (BuildContext context) => new SelectTargetPage(),
                     )).then((_) {
-                  _geofenceSwitchKey.currentState.loadGeofence();
+                      if (_geofenceSwitchKey.currentState != null) {
+                        _geofenceSwitchKey.currentState.loadGeofence();
+                      }
                 });
               },
               child: Text('迎えに行く'),
