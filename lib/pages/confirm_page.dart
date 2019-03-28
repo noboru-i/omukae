@@ -17,8 +17,10 @@ class ConfirmPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('通知の確認'),
       ),
-      body: Builder(
-        builder: (context) => _ConfirmPageInternal(),
+      body: SafeArea(
+        child: Builder(
+          builder: (context) => _ConfirmPageInternal(),
+        ),
       ),
     );
   }

@@ -15,7 +15,9 @@ class SelectTargetPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('目的地の選択'),
       ),
-      body: MapContainer(),
+      body: SafeArea(
+        child: MapContainer(),
+      ),
     );
   }
 }

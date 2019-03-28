@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:omukae/pages/confirm_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
 import 'package:omukae/ui/input_message_dialog.dart';
-import 'package:geolocator/geolocator.dart';
 
 class SelectNotificationPage extends StatefulWidget {
   @override
@@ -46,36 +46,38 @@ class _SelectNotificationPageState extends State<SelectNotificationPage> {
       appBar: AppBar(
         title: Text('通知の設定'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          draft == null
-              ? Container()
-              : Container(
-                  padding: EdgeInsets.only(
-                      top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
-                  child: DistanceLabel(
-                    targetPosition: Position(
-                      latitude: draft.latitude,
-                      longitude: draft.longitude,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            draft == null
+                ? Container()
+                : Container(
+                    padding: EdgeInsets.only(
+                        top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
+                    child: DistanceLabel(
+                      targetPosition: Position(
+                        latitude: draft.latitude,
+                        longitude: draft.longitude,
+                      ),
                     ),
                   ),
-                ),
-          Expanded(
-            child: ListContainer(
-              key: _key,
+            Expanded(
+              child: ListContainer(
+                key: _key,
+              ),
             ),
-          ),
-          RaisedButton(
-            padding: EdgeInsets.all(20.0),
-            onPressed: _moveToNext,
-            color: Colors.blue[800],
-            child: const Text(
-              '通知を設定する',
-              style: TextStyle(color: Colors.white),
+            RaisedButton(
+              padding: EdgeInsets.all(20.0),
+              onPressed: _moveToNext,
+              color: Colors.blue[800],
+              child: const Text(
+                '通知を設定する',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: Container(
         padding: EdgeInsets.only(bottom: 100.0),
