@@ -7,8 +7,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
-import 'package:omukae/util/geofencing_util.dart';
-import 'package:omukae/util/local_notification_util.dart';
 
 class ConfirmPage extends StatelessWidget {
   @override
@@ -17,10 +15,8 @@ class ConfirmPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('通知の確認'),
       ),
-      body: SafeArea(
-        child: Builder(
-          builder: (context) => _ConfirmPageInternal(),
-        ),
+      body: Builder(
+        builder: (context) => _ConfirmPageInternal(),
       ),
     );
   }
@@ -150,25 +146,6 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
                     ));
                   },
                 ),
-        ),
-        RaisedButton(
-          padding: EdgeInsets.all(20.0),
-          color: Colors.blue[800],
-          onPressed: () async {
-            // initialize for request permission
-            LocalNotificationUtil();
-
-            var result = await GeofencingUtil().registerGeofencing();
-            final snackBar = SnackBar(
-                content: Text(result
-                    ? 'geofence is added.'
-                    : 'adding geofence is failed.'));
-            Scaffold.of(context).showSnackBar(snackBar);
-          },
-          child: Text(
-            '通知を設定する',
-            style: TextStyle(color: Colors.white),
-          ),
         ),
       ],
     );
