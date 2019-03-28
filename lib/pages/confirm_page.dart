@@ -56,12 +56,6 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
       if (draft == null) {
         return;
       }
-      double distanceInMeters = await Geolocator().distanceBetween(
-          draft.latitude,
-          draft.longitude,
-          _position.latitude,
-          _position.longitude);
-      print('distance: $distanceInMeters meter');
       setState(() {
         currentPosition = _position;
       });
