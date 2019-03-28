@@ -111,6 +111,21 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
           height: 100,
           child: _createListView(),
         ),
+        Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 8.0,
+            vertical: 4.0,
+          ),
+          child: RaisedButton(
+            padding: EdgeInsets.all(10.0),
+            onPressed: _onPressShare,
+            color: Colors.blue[800],
+            child: const Text(
+              '通知を共有する',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
         Expanded(
           child: _createMap(),
         ),
@@ -177,5 +192,9 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
               ));
             },
           );
+  }
+
+  Future<void> _onPressShare() async {
+    // TODO share linkの作成
   }
 }
