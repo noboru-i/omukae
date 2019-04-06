@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:geofencing/geofencing.dart';
 import 'package:omukae/pages/welcome_page.dart';
@@ -8,6 +10,8 @@ class OmukaeApp extends StatefulWidget {
 }
 
 class _OmukaeAppState extends State<OmukaeApp> {
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +32,9 @@ class _OmukaeAppState extends State<OmukaeApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
       home: WelcomePage(),
     );
   }
