@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
 import 'package:uuid/uuid.dart';
+import 'package:share/share.dart';
 
 class ConfirmPage extends StatelessWidget {
   @override
@@ -199,5 +200,6 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
     // TODO save uuid into draft
     var uuid = new Uuid().v4();
     print('uuid: $uuid');
+    Share.share('uuid: ' + uuid);
   }
 }
