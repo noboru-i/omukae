@@ -89,6 +89,8 @@ PODS:
   - permission_handler (3.0.0):
     - Flutter
   - Protobuf (3.6.1)
+  - share (0.5.2):
+    - Flutter
   - shared_preferences (0.0.1):
     - Flutter
 
@@ -103,6 +105,7 @@ DEPENDENCIES:
   - google_api_availability (from `.symlinks/plugins/google_api_availability/ios`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
 SPEC REPOS:
@@ -140,6 +143,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_maps_flutter/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
+  share:
+    :path: ".symlinks/plugins/share/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
 
@@ -165,6 +170,7 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   permission_handler: 03dcf3ade9d5f398b8854b366cb9de718d3daa76
   Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
+  share: 222b5dcc8031238af9d7de91149df65bad1aef75
   shared_preferences: 5a1d487c427ee18fcd3ea1f2a131569481834b53
 
 PODFILE CHECKSUM: 237ff1fe51a5d6919997051a37f9f598647d7092
