@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
+import 'package:gps_distance/gps_distance.dart';
 
 class DistanceLabel extends StatefulWidget {
   const DistanceLabel({
@@ -8,22 +9,19 @@ class DistanceLabel extends StatefulWidget {
     this.targetPosition,
   }) : super(key: key);
 
-  final Position targetPosition;
+  final LocationData targetPosition;
 
   @override
   _DistanceLabelState createState() => _DistanceLabelState();
 }
 
 class _DistanceLabelState extends State<DistanceLabel> {
-  Position currentPosition;
+  LocationData currentPosition;
   String label;
 
   void _initLocation() async {
     try {
-      var currentLocation = await Geolocator().getLastKnownPosition();
-      if (currentLocation == null) {
-        currentLocation = await Geolocator().getCurrentPosition();
-      }
+      var currentLocation = await Location().getLocation();
       setState(() {
         currentPosition = currentLocation;
       });
@@ -39,7 +37,7 @@ class _DistanceLabelState extends State<DistanceLabel> {
       return null;
     }
 
-    var distanceInMeters = await Geolocator().distanceBetween(
+    var distanceInMeters = await GpsDistance.calculateDistance(
       widget.targetPosition.latitude,
       widget.targetPosition.longitude,
       currentPosition.latitude,

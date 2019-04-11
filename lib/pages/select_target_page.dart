@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:omukae/pages/select_notification_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
@@ -30,7 +30,7 @@ class MapContainer extends StatefulWidget {
 class MapContainerState extends State<MapContainer> {
   GoogleMapController mapController;
   CameraPosition centerPosition;
-  Position currentPosition;
+  LocationData currentPosition;
 
   @override
   void initState() {
@@ -40,10 +40,12 @@ class MapContainerState extends State<MapContainer> {
 
   void _initLocation() async {
     try {
-      var currentLocation = await Geolocator().getLastKnownPosition();
-      if (currentLocation == null) {
-        currentLocation = await Geolocator().getCurrentPosition();
+      debugPrint("_initLocation");
+      var location = Location();
+      if (!await location.hasPermission()) {
+        return;
       }
+      var currentLocation = await location.getLocation();
       debugPrint("lat: ${currentLocation.latitude}");
       debugPrint("lng: ${currentLocation.longitude}");
       setState(() {
@@ -52,7 +54,7 @@ class MapContainerState extends State<MapContainer> {
     } on PlatformException catch (e) {
       debugPrint("exception: $e");
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
-      return null;
+      return;
     }
   }
 
@@ -80,10 +82,10 @@ class MapContainerState extends State<MapContainer> {
           child: DistanceLabel(
             targetPosition: centerPosition == null
                 ? null
-                : Position(
-                    latitude: centerPosition.target.latitude,
-                    longitude: centerPosition.target.longitude,
-                  ),
+                : LocationData.fromMap({
+                    "latitude": centerPosition.target.latitude,
+                    "longitude": centerPosition.target.longitude,
+                  }),
           ),
         ),
         Expanded(

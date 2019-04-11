@@ -2,8 +2,6 @@ import UIKit
 import Flutter
 import GoogleMaps
 
-import geofencing
-
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(

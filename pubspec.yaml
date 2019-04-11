@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^0.1.2
-  geolocator: ^3.0.1
+  location: ^2.3.5
   google_maps_flutter: ^0.4.0
   shared_preferences: ^0.5.1+2
   flutter_local_notifications: ^0.5.2
@@ -23,6 +23,8 @@ dependencies:
 
   geofencing:
     path: ../FlutterGeofencing/
+  gps_distance:
+    path: ../flutter_gps_distance/
 
 dev_dependencies:
   flutter_test:

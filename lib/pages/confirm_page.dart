@@ -3,12 +3,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
-import 'package:uuid/uuid.dart';
 import 'package:share/share.dart';
+import 'package:uuid/uuid.dart';
 
 class ConfirmPage extends StatelessWidget {
   @override
@@ -28,11 +28,11 @@ class _ConfirmPageInternal extends StatefulWidget {
 }
 
 class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
-  Position currentPosition;
+  LocationData currentPosition;
   Draft draft;
   Set<Marker> markers = Set();
 
-  StreamSubscription<Position> positionStream;
+  StreamSubscription<LocationData> positionStream;
 
   GoogleMapController mapController;
 
@@ -42,37 +42,36 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
 
     _initLocation();
 
-    var locationOptions = LocationOptions(
-      accuracy: LocationAccuracy.best,
-      distanceFilter: 10,
-    );
-    positionStream = Geolocator()
-        .getPositionStream(locationOptions)
-        .listen((Position _position) async {
-      print(_position == null
+    positionStream = Location()
+        .onLocationChanged()
+        .listen((LocationData currentLocation) async {
+      print(currentLocation == null
           ? 'Unknown'
-          : '${_position.latitude.toString()}, ${_position.longitude.toString()}');
+          : '${currentLocation.latitude.toString()}, ${currentLocation.longitude.toString()}');
 
       if (draft == null) {
         return;
       }
       setState(() {
-        currentPosition = _position;
+        currentPosition = currentLocation;
       });
     });
   }
 
   void _initLocation() async {
     try {
-      var currentLocation = await Geolocator()
-          .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+      var location = Location();
+      if (!await location.hasPermission()) {
+        return;
+      }
+      var currentLocation = await location.getLocation();
       setState(() {
         currentPosition = currentLocation;
       });
     } on PlatformException catch (e) {
       debugPrint("exception: $e");
       debugPrint("is permission denied: ${e.code == 'PERMISSION_DENIED'}");
-      return null;
+      return;
     }
     var repository = DraftRepository();
     var draft = await repository.loadCurrentDraft();
@@ -103,10 +102,10 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
           child: DistanceLabel(
             targetPosition: draft == null
                 ? null
-                : Position(
-                    latitude: draft.latitude,
-                    longitude: draft.longitude,
-                  ),
+                : LocationData.fromMap({
+                    "latitude": draft.latitude,
+                    "longitude": draft.longitude,
+                  }),
           ),
         ),
         SizedBox(
