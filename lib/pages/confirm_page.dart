@@ -180,10 +180,12 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
 
-              var west = min(currentPosition.latitude, draft.latitude);
-              var east = max(currentPosition.latitude, draft.latitude);
-              var southwest = LatLng(west, currentPosition.longitude);
-              var northeast = LatLng(east, draft.longitude);
+              var west = min(currentPosition.longitude, draft.longitude);
+              var east = max(currentPosition.longitude, draft.longitude);
+              var north = min(currentPosition.latitude, draft.latitude);
+              var south = max(currentPosition.latitude, draft.latitude);
+              var southwest = LatLng(south, west);
+              var northeast = LatLng(north, east);
               mapController.moveCamera(CameraUpdate.newLatLngBounds(
                 LatLngBounds(
                   southwest: southwest,
