@@ -106,6 +106,12 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
                     "latitude": draft.latitude,
                     "longitude": draft.longitude,
                   }),
+            currentPosition: currentPosition == null
+                ? null
+                : LocationData.fromMap({
+                    'latitude': currentPosition.latitude,
+                    'longitude': currentPosition.longitude,
+                  }),
           ),
         ),
         SizedBox(

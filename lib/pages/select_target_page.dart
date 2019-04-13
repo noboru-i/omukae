@@ -7,6 +7,7 @@ import 'package:location/location.dart';
 import 'package:omukae/pages/select_notification_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
+import 'package:omukae/util/location_util.dart';
 
 class SelectTargetPage extends StatelessWidget {
   @override
@@ -40,14 +41,15 @@ class MapContainerState extends State<MapContainer> {
 
   void _initLocation() async {
     try {
-      debugPrint("_initLocation");
-      var location = Location();
-      if (!await location.hasPermission()) {
-        return;
+      var currentLocation = await LocationUtil().getLastKnownLocation();
+      if (currentLocation != null) {
+        setState(() {
+          currentPosition = currentLocation;
+        });
       }
-      var currentLocation = await location.getLocation();
-      debugPrint("lat: ${currentLocation.latitude}");
-      debugPrint("lng: ${currentLocation.longitude}");
+
+      // fetch current location
+      currentLocation = await LocationUtil().getLocation();
       setState(() {
         currentPosition = currentLocation;
       });
@@ -85,6 +87,12 @@ class MapContainerState extends State<MapContainer> {
                 : LocationData.fromMap({
                     "latitude": centerPosition.target.latitude,
                     "longitude": centerPosition.target.longitude,
+                  }),
+            currentPosition: currentPosition == null
+                ? null
+                : LocationData.fromMap({
+                    "latitude": currentPosition.latitude,
+                    "longitude": currentPosition.longitude,
                   }),
           ),
         ),
