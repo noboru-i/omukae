@@ -184,9 +184,6 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
   }
 
   Future<void> _onPressShare() async {
-    // TODO save uuid into draft
-    var uuid = new Uuid().v4();
-    print('uuid: $uuid');
-    Share.share('uuid: ' + uuid);
+    Share.share('uuid: ' + draft.notifyUuid);
   }
 }

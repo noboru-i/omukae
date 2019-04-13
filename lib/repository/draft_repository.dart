@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 import 'package:omukae/data/gps_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class DraftRepository {
   Future<void> saveCurrentDraft(Draft draft) async {
     var prefs = await SharedPreferences.getInstance();
+
+    _updateUuidIfNeeded(draft);
     await prefs.setString('draft', jsonEncode(draft.toJson()));
   }
 
@@ -18,22 +21,33 @@ class DraftRepository {
     }
     return Draft.fromJson(jsonDecode(draftString));
   }
+
+  _updateUuidIfNeeded(Draft draft) {
+    if (draft.notifyUuid.isNotEmpty) {
+      return;
+    }
+
+    draft.notifyUuid = Uuid().v4();
+  }
 }
 
 class Draft {
   GpsData target;
   double initialDistance;
+  String notifyUuid;
   List<Message> messageList;
 
   Draft({
     this.target,
     this.initialDistance,
+    this.notifyUuid,
     this.messageList,
   });
 
   Draft.fromJson(Map<String, dynamic> json)
       : target = GpsData.fromJson(json['target']),
         initialDistance = json['initialDistance'],
+        notifyUuid = json['uuid'],
         messageList = (json['messageList'] as List)
             ?.map((j) => Message.fromJson(j))
             ?.toList();
@@ -41,6 +55,7 @@ class Draft {
   Map<String, dynamic> toJson() => {
         'target': target.toJson(),
         'initialDistance': initialDistance,
+        'notifyUuid': notifyUuid,
         'messageList': messageList?.map((m) => m.toJson())?.toList()
       };
 }
