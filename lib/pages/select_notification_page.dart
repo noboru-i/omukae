@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:omukae/data/gps_data.dart';
 import 'package:omukae/pages/confirm_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
@@ -115,10 +114,8 @@ class _SelectNotificationInternalState
                 padding: EdgeInsets.only(
                     top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
                 child: DistanceLabel(
-                  targetPosition: GpsData(
-                    draft.latitude,
-                    draft.longitude,
-                  ),
+                  // TODO use initialDistance.
+                  targetPosition: draft.target,
                 ),
               ),
         Expanded(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:meta/meta.dart';
+import 'package:omukae/data/gps_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DraftRepository {
@@ -11,7 +12,7 @@ class DraftRepository {
 
   Future<Draft> loadCurrentDraft() async {
     var prefs = await SharedPreferences.getInstance();
-    var draftString = await prefs.getString('draft');
+    var draftString = prefs.getString('draft');
     if (draftString == null) {
       return null;
     }
@@ -20,26 +21,26 @@ class DraftRepository {
 }
 
 class Draft {
-  // TODO We need to use GpsData class.
-  double latitude;
-  double longitude;
+  GpsData target;
+  double initialDistance;
   List<Message> messageList;
 
   Draft({
-    this.latitude,
-    this.longitude,
+    this.target,
+    this.initialDistance,
     this.messageList,
   });
 
   Draft.fromJson(Map<String, dynamic> json)
-      : latitude = json['latitude'],
-        longitude = json['longitude'],
-        messageList =
-            (json['messageList'] as List)?.map((j) => Message.fromJson(j))?.toList();
+      : target = GpsData.fromJson(json['target']),
+        initialDistance = json['initialDistance'],
+        messageList = (json['messageList'] as List)
+            ?.map((j) => Message.fromJson(j))
+            ?.toList();
 
   Map<String, dynamic> toJson() => {
-        'latitude': latitude,
-        'longitude': longitude,
+        'target': target.toJson(),
+        'initialDistance': initialDistance,
         'messageList': messageList?.map((m) => m.toJson())?.toList()
       };
 }

@@ -72,7 +72,7 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
       this.draft = draft;
       markers.add(Marker(
         markerId: MarkerId('to'),
-        position: LatLng(draft.latitude, draft.longitude),
+        position: draft.target.toLatLng(),
       ));
     });
   }
@@ -93,12 +93,7 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
           padding:
               EdgeInsets.only(top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
           child: DistanceLabel(
-            targetPosition: draft == null
-                ? null
-                : GpsData(
-                    draft.latitude,
-                    draft.longitude,
-                  ),
+            targetPosition: draft?.target,
             currentPosition: currentPosition,
           ),
         ),
@@ -171,10 +166,10 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
 
-              var west = min(currentPosition.longitude, draft.longitude);
-              var east = max(currentPosition.longitude, draft.longitude);
-              var north = min(currentPosition.latitude, draft.latitude);
-              var south = max(currentPosition.latitude, draft.latitude);
+              var west = min(currentPosition.longitude, draft.target.longitude);
+              var east = max(currentPosition.longitude, draft.target.longitude);
+              var north = min(currentPosition.latitude, draft.target.latitude);
+              var south = max(currentPosition.latitude, draft.target.latitude);
               var southwest = LatLng(south, west);
               var northeast = LatLng(north, east);
               mapController.moveCamera(CameraUpdate.newLatLngBounds(

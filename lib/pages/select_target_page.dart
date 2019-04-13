@@ -61,9 +61,9 @@ class MapContainerState extends State<MapContainer> {
   }
 
   _moveToNext() async {
+    // TODO set initialDistance.
     var draft = Draft(
-      latitude: centerPosition.latitude,
-      longitude: centerPosition.longitude,
+      target: centerPosition,
     );
     await DraftRepository().saveCurrentDraft(draft);
     Navigator.push(

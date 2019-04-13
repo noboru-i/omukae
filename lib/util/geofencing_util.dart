@@ -48,8 +48,8 @@ class GeofencingUtil {
       await GeofencingManager.registerGeofence(
         GeofenceRegion(
           i.toString(),
-          draft.latitude,
-          draft.longitude,
+          draft.target.latitude,
+          draft.target.longitude,
           message.distance.toDouble(),
           [GeofenceEvent.enter],
           androidSettings: androidSettings,
