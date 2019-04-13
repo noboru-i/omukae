@@ -20,6 +20,7 @@ class DraftRepository {
 }
 
 class Draft {
+  // TODO We need to use GpsData class.
   double latitude;
   double longitude;
   List<Message> messageList;

@@ -1,42 +1,24 @@
 import 'dart:convert';
 
+import 'package:omukae/data/gps_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GpsCacheRepository {
-  Future<void> saveGpsCache(GpsCache gpsCache) async {
+  Future<void> saveGpsCache(GpsData gpsData) async {
     var prefs = await SharedPreferences.getInstance();
-    if (gpsCache == null) {
+    if (gpsData == null) {
       await prefs.remove('gps_cache');
       return;
     }
-    await prefs.setString('gps_cache', jsonEncode(gpsCache.toJson()));
+    await prefs.setString('gps_cache', jsonEncode(gpsData.toJson()));
   }
 
-  Future<GpsCache> loadGpsCache() async {
+  Future<GpsData> loadGpsCache() async {
     var prefs = await SharedPreferences.getInstance();
-    var gpsCacheString = prefs.getString('gps_cache');
-    if (gpsCacheString == null) {
+    var gpsDataString = prefs.getString('gps_cache');
+    if (gpsDataString == null) {
       return null;
     }
-    return GpsCache.fromJson(jsonDecode(gpsCacheString));
+    return GpsData.fromJson(jsonDecode(gpsDataString));
   }
-}
-
-class GpsCache {
-  double latitude;
-  double longitude;
-
-  GpsCache({
-    this.latitude,
-    this.longitude,
-  });
-
-  GpsCache.fromJson(Map<String, dynamic> json)
-      : latitude = json['latitude'],
-        longitude = json['longitude'];
-
-  Map<String, dynamic> toJson() => {
-        'latitude': latitude,
-        'longitude': longitude,
-      };
 }

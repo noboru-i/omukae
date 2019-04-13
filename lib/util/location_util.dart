@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:location/location.dart';
+import 'package:omukae/data/gps_data.dart';
 import 'package:omukae/repository/gps_cache_repository.dart';
 
 class LocationUtil {
@@ -10,25 +11,31 @@ class LocationUtil {
     location = Location();
   }
 
-  Future<LocationData> getLastKnownLocation() async {
+  Future<GpsData> getLastKnownLocation() async {
     var cacheLocation = await GpsCacheRepository().loadGpsCache();
     if (cacheLocation != null) {
-      return LocationData.fromMap({
-        'latitude': cacheLocation.latitude,
-        'longitude': cacheLocation.longitude,
-      });
+      return cacheLocation;
     }
 
     return null;
   }
 
-  Future<LocationData> getLocation() async {
+  Future<GpsData> getLocation() async {
     var currentLocation = await location.getLocation();
-    await GpsCacheRepository().saveGpsCache(GpsCache(
-      latitude: currentLocation.latitude,
-      longitude: currentLocation.longitude,
-    ));
+    var gpsData = GpsData.fromLocation(currentLocation);
+    await GpsCacheRepository().saveGpsCache(gpsData);
 
-    return currentLocation;
+    return gpsData;
+  }
+
+  Stream<GpsData> onLocationChanged() {
+    return location
+        .onLocationChanged()
+        .map((locationData) => locationData == null
+            ? null
+            : GpsData(
+                locationData.latitude,
+                locationData.longitude,
+              ));
   }
 }

@@ -4,9 +4,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:omukae/data/gps_data.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
+import 'package:omukae/util/location_util.dart';
 import 'package:share/share.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,11 +29,11 @@ class _ConfirmPageInternal extends StatefulWidget {
 }
 
 class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
-  LocationData currentPosition;
+  GpsData currentPosition;
   Draft draft;
   Set<Marker> markers = Set();
 
-  StreamSubscription<LocationData> positionStream;
+  StreamSubscription<GpsData> positionStream;
 
   GoogleMapController mapController;
 
@@ -42,13 +43,9 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
 
     _initLocation();
 
-    positionStream = Location()
+    positionStream = LocationUtil()
         .onLocationChanged()
-        .listen((LocationData currentLocation) async {
-      print(currentLocation == null
-          ? 'Unknown'
-          : '${currentLocation.latitude.toString()}, ${currentLocation.longitude.toString()}');
-
+        .listen((GpsData currentLocation) async {
       if (draft == null) {
         return;
       }
@@ -60,11 +57,7 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
 
   void _initLocation() async {
     try {
-      var location = Location();
-      if (!await location.hasPermission()) {
-        return;
-      }
-      var currentLocation = await location.getLocation();
+      var currentLocation = await LocationUtil().getLastKnownLocation();
       setState(() {
         currentPosition = currentLocation;
       });
@@ -102,16 +95,11 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
           child: DistanceLabel(
             targetPosition: draft == null
                 ? null
-                : LocationData.fromMap({
-                    "latitude": draft.latitude,
-                    "longitude": draft.longitude,
-                  }),
-            currentPosition: currentPosition == null
-                ? null
-                : LocationData.fromMap({
-                    'latitude': currentPosition.latitude,
-                    'longitude': currentPosition.longitude,
-                  }),
+                : GpsData(
+                    draft.latitude,
+                    draft.longitude,
+                  ),
+            currentPosition: currentPosition,
           ),
         ),
         SizedBox(
@@ -175,10 +163,7 @@ class _ConfirmPageInternalState extends State<_ConfirmPageInternal> {
           )
         : GoogleMap(
             initialCameraPosition: CameraPosition(
-              target: LatLng(
-                currentPosition.latitude,
-                currentPosition.longitude,
-              ),
+              target: currentPosition.toLatLng(),
               zoom: 13,
             ),
             myLocationEnabled: true,

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:omukae/data/gps_data.dart';
 import 'package:omukae/pages/select_notification_page.dart';
 import 'package:omukae/repository/draft_repository.dart';
 import 'package:omukae/ui/distance_label.dart';
@@ -30,8 +30,8 @@ class MapContainer extends StatefulWidget {
 
 class MapContainerState extends State<MapContainer> {
   GoogleMapController mapController;
-  CameraPosition centerPosition;
-  LocationData currentPosition;
+  GpsData centerPosition;
+  GpsData currentPosition;
 
   @override
   void initState() {
@@ -62,8 +62,8 @@ class MapContainerState extends State<MapContainer> {
 
   _moveToNext() async {
     var draft = Draft(
-      latitude: centerPosition.target.latitude,
-      longitude: centerPosition.target.longitude,
+      latitude: centerPosition.latitude,
+      longitude: centerPosition.longitude,
     );
     await DraftRepository().saveCurrentDraft(draft);
     Navigator.push(
@@ -82,18 +82,8 @@ class MapContainerState extends State<MapContainer> {
           padding:
               EdgeInsets.only(top: 12.0, right: 8.0, bottom: 12.0, left: 8.0),
           child: DistanceLabel(
-            targetPosition: centerPosition == null
-                ? null
-                : LocationData.fromMap({
-                    "latitude": centerPosition.target.latitude,
-                    "longitude": centerPosition.target.longitude,
-                  }),
-            currentPosition: currentPosition == null
-                ? null
-                : LocationData.fromMap({
-                    "latitude": currentPosition.latitude,
-                    "longitude": currentPosition.longitude,
-                  }),
+            targetPosition: centerPosition,
+            currentPosition: currentPosition,
           ),
         ),
         Expanded(
@@ -105,10 +95,7 @@ class MapContainerState extends State<MapContainer> {
                   children: [
                     GoogleMap(
                       initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                          currentPosition.latitude,
-                          currentPosition.longitude,
-                        ),
+                        target: currentPosition.toLatLng(),
                         zoom: 13,
                       ),
                       myLocationEnabled: true,
@@ -117,7 +104,7 @@ class MapContainerState extends State<MapContainer> {
                       },
                       onCameraMove: (CameraPosition position) {
                         setState(() {
-                          centerPosition = position;
+                          centerPosition = GpsData.fromCameraPosition(position);
                         });
                       },
                     ),

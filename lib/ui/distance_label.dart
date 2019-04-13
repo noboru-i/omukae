@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gps_distance/gps_distance.dart';
-import 'package:location/location.dart';
+import 'package:omukae/data/gps_data.dart';
 
 class DistanceLabel extends StatefulWidget {
   const DistanceLabel({
@@ -9,8 +9,8 @@ class DistanceLabel extends StatefulWidget {
     this.currentPosition,
   }) : super(key: key);
 
-  final LocationData targetPosition;
-  final LocationData currentPosition;
+  final GpsData targetPosition;
+  final GpsData currentPosition;
 
   @override
   _DistanceLabelState createState() => _DistanceLabelState();
