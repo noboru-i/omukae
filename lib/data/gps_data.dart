@@ -20,9 +20,14 @@ class GpsData {
     longitude = data.target.longitude;
   }
 
-  GpsData.fromJson(Map<String, dynamic> json)
-      : latitude = json['latitude'],
-        longitude = json['longitude'];
+  GpsData.fromJson(Map<String, dynamic> json) {
+    if (json == null) {
+      return;
+    }
+
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+  }
 
   LatLng toLatLng() => LatLng(latitude, longitude);
 

@@ -23,7 +23,7 @@ class DraftRepository {
   }
 
   _updateUuidIfNeeded(Draft draft) {
-    if (draft.notifyUuid.isNotEmpty) {
+    if (draft.notifyUuid == null || draft.notifyUuid.isNotEmpty) {
       return;
     }
 

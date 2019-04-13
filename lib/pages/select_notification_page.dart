@@ -149,6 +149,8 @@ class ListContainer extends StatefulWidget {
 class ListContainerState extends State<ListContainer> {
 //  List<Message> messageList = [];
   List<Message> messageList = [
+    Message(text: '5キロ', distance: 5000),
+    Message(text: '4キロ', distance: 4000),
     Message(text: '3キロ', distance: 3000),
     Message(text: '2キロ', distance: 2000),
     Message(text: '1キロ', distance: 1000),
