@@ -33,6 +33,9 @@ class _OmukaeAppState extends State<OmukaeApp> {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
+        var notificationUtil = LocalNotificationUtil();
+        notificationUtil.notify(
+            title: 'omukae', body: 'message from local: ' + message['notification']['body']);
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
